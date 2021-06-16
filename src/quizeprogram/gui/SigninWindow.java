@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,16 +16,23 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import quizeprogram.db.User;
+import quizeprogram.db.UserDAO;
+
 public class SigninWindow extends JFrame {
 	private JTextField idField;
 	private JPasswordField pwField;
-	private JTextField rePwField;
+	private JPasswordField rePwField;
 	private JTextField findPwField;
 	private JTextField nickNameField;
-	
+
+	private UserDAO userDAO = new UserDAO();
+
 	public SigninWindow() {
 		setTitle("회원가입");
+		setSize(355, 530);
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		setLocationRelativeTo(null);
 
 		JPanel mainPanel = new JPanel();
 		mainPanel.setBackground(SystemColor.inactiveCaption);
@@ -78,38 +88,60 @@ public class SigninWindow extends JFrame {
 		findIdPwLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		findIdPwLabel.setBounds(24, 282, 295, 18);
 		mainPanel.add(findIdPwLabel);
-		
+
 		JLabel lblNewLabel = new JLabel("비밀번호 재입력");
 		lblNewLabel.setFont(new Font("굴림", Font.BOLD, 15));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		lblNewLabel.setBounds(24, 198, 140, 33);
 		mainPanel.add(lblNewLabel);
-		
-		rePwField = new JTextField();
+
+		rePwField = new JPasswordField();
 		rePwField.setBounds(24, 222, 295, 39);
 		mainPanel.add(rePwField);
 		rePwField.setColumns(10);
-		
+
 		findPwField = new JTextField();
 		findPwField.setBounds(24, 324, 295, 37);
 		mainPanel.add(findPwField);
 		findPwField.setColumns(10);
-		
+
 		JButton finishButton = new JButton("완료");
 		finishButton.setBackground(Color.BLUE);
 		finishButton.setFont(new Font("굴림", Font.BOLD, 15));
 		finishButton.setBounds(107, 448, 105, 27);
 		mainPanel.add(finishButton);
-		
+
 		JLabel nickNameLabel = new JLabel("닉네임");
 		nickNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		nickNameLabel.setFont(new Font("굴림", Font.BOLD, 15));
 		nickNameLabel.setBounds(24, 373, 87, 18);
 		mainPanel.add(nickNameLabel);
-		
+
 		nickNameField = new JTextField();
 		nickNameField.setBounds(24, 397, 295, 39);
 		mainPanel.add(nickNameField);
 		nickNameField.setColumns(10);
+
+		ActionListener addListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!pwField.getText().equals(rePwField.getText())) {
+					signinLabel.setText("비밀번호가 다릅니다.");
+					pwField.setText("");
+					rePwField.setText("");
+				} else {
+					User user = new User();
+					user.setId(idField.getText());
+					user.setPw(pwField.getText());
+					user.setName(nickNameField.getText());
+					user.setsNumber(findPwField.getText());
+					userDAO.join(user);
+					dispose();
+				}
+			}
+		};
+
+		finishButton.addActionListener(addListener);
+
+		setVisible(true);
 	}
 }
